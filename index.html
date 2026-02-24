@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live QR Scanner</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
+<style>
+  body { text-align:center; font-family: Arial; margin: 20px; }
+  #reader { width: 300px; margin: auto; }
+  #uploadFallback { margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h2>Scan QR Code</h2>
+<div id="reader"></div>
+
+<!-- Upload fallback -->
+<div id="uploadFallback">
+  <p>Or upload a QR code image</p>
+  <input type="file" accept="image/*" id="qrFile">
+  <button onclick="uploadFallback()">Upload & Scan</button>
+</div>
+
+<script>
+const html5QrCode = new Html5Qrcode("reader");
+
+// Start live camera scanning
+Html5Qrcode.getCameras().then(devices => {
+  if (devices && devices.length) {
+    // Choose back camera if available
+    let cameraId = devices.find(d => d.label.toLowerCase().includes('back'))?.id || devices[0].id;
+
+    html5QrCode.start(
+      cameraId,
+      { fps: 10, qrbox: 250 },
+      qrCodeMessage => {
+        // Redirect back to your Apps Script with the scanned value
+        window.location.href = "https://script.google.com/macros/s/AKfycbxink-dXwsVGsv9wIibMGbhu02DFY1kPEBTXlhteuQk374TFXLB-M2hvTJlDYO5n_7Uiw/exec?qr=" 
+                               + encodeURIComponent(qrCodeMessage);
+      },
+      errorMessage => {}
+    );
+  } else {
+    alert("No camera device found");
+  }
+}).catch(err => {
+  alert("Camera permission denied or not supported: " + err);
+});
+
+// Upload fallback using free QR decode API
+function uploadFallback() {
+  const fileInput = document.getElementById("qrFile");
+  const file = fileInput.files[0];
+  if (!file) return alert("Select a QR image!");
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64 = e.target.result.split(',')[1]; // remove data:image/png;base64,
+
+    fetch("https://aisenseapi.com/services/v1/qrcode_decode", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payload: base64 })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const qr = data.qrcode_content || "Failed to decode";
+      window.location.href = "https://script.google.com/macros/s/AKfycbxink-dXwsVGsv9wIibMGbhu02DFY1kPEBTXlhteuQk374TFXLB-M2hvTJlDYO5n_7Uiw/exec?qr=" 
+                             + encodeURIComponent(qr);
+    })
+    .catch(err => alert("Failed to decode QR: " + err));
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
