@@ -1,0 +1,80 @@
+.app {
+  max-width: 800px;
+  height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+header h1 {
+  font-size: 1.4rem;
+  margin: 16px 0;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.empty {
+  color: #888;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.message {
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 80%;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: #d97757;
+  color: white;
+}
+
+.message.assistant {
+  align-self: flex-start;
+  background: #f1efe8;
+  color: #222;
+}
+
+.composer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 0 16px;
+}
+
+.composer textarea {
+  flex: 1;
+  resize: none;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font: inherit;
+}
+
+.composer button {
+  padding: 0 20px;
+  border: none;
+  border-radius: 8px;
+  background: #d97757;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+.composer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
